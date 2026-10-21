@@ -23,11 +23,15 @@
       --muted: #5f6368;       /* 흰 배경 대비 6.0:1, 페이지 배경 대비 5.7:1 */
       --line: #e3e7ed;
       --field-line: #c4c9d1;
-      --primary: #1967d2;     /* 흰 글씨 대비 5.4:1 */
-      --primary-hover: #1557b0;
-      --primary-soft: rgba(25, 103, 210, 0.16);
-      --chart-line: #1a73e8;
-      --chart-fill: rgba(26, 115, 232, 0.06);
+      --primary: #4338ca;     /* 인디고, 흰 글씨 대비 7.9:1 */
+      --primary-hover: #3730a3;
+      --primary-soft: rgba(67, 56, 202, 0.16);
+      /* 그래프 선 5색: 인디고 중심, 흰 배경 대비 모두 3:1 이상 */
+      --series-1: #4f46e5;    /* 인디고 */
+      --series-2: #ea580c;    /* 주황 */
+      --series-3: #0d9488;    /* 청록 */
+      --series-4: #db2777;    /* 분홍 */
+      --series-5: #a16207;    /* 황토 */
       --chart-grid: #eef1f5;
       --error-text: #b3261e;  /* 오류 배경 대비 5.8:1 */
       --error-bg: #fcefee;
@@ -150,6 +154,7 @@
     .search-bar button:disabled { opacity: 0.75; cursor: wait; }
 
     .search-bar button:focus-visible,
+    .chip-remove:focus-visible,
     a:focus-visible {
       outline: 2px solid var(--primary);
       outline-offset: 2px;
@@ -159,6 +164,69 @@
       margin: 10px 0 0 20px;
       color: var(--muted);
       font-size: 15px;
+    }
+
+    .count { font-weight: 600; color: var(--text); }
+
+    /* "최대 5개까지" 같은 입력 안내 */
+    .input-msg {
+      margin: 6px 0 0 20px;
+      color: var(--error-text);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    /* 넣은 키워드 칩 (그래프 선과 같은 색 점) */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .chips:not(:empty) { margin-top: 16px; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 100%;
+      padding: 4px 4px 4px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--card);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .chip-text {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chip-remove {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+
+    .chip-remove:hover {
+      background: var(--box-bg);
+      color: var(--text);
     }
 
     /* 키워드별 로딩·실패 안내 */
@@ -223,18 +291,20 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      max-width: 100%;
       padding: 6px 14px;
       border: 1px solid var(--line);
       border-radius: 999px;
       font-size: 15px;
       font-weight: 600;
+      overflow-wrap: anywhere;
     }
 
     .legend-dot {
+      flex: 0 0 auto;
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: var(--chart-line);
     }
 
     /* 그래프는 이 칸 안, 정해진 높이 안에서만 그려진다 */
@@ -327,7 +397,7 @@
       .search-icon { width: 20px; height: 20px; }
       .search-bar input { height: 44px; font-size: 16px; } /* 16px 미만이면 아이폰이 화면을 확대함 */
       .search-bar button { height: 44px; padding: 0 18px; font-size: 16px; }
-      .helper { margin-left: 14px; }
+      .helper, .input-msg { margin-left: 14px; }
       .chart-area { height: 260px; }
       .api-box { padding: 16px; }
     }
@@ -341,7 +411,7 @@
   <main>
     <header>
       <h1>키워드 관심도 비교</h1>
-      <p class="intro">키워드를 넣고, 사람들의 관심도가 최근 90일 동안 어떻게 달라졌는지 그래프로 확인해 보세요.</p>
+      <p class="intro">키워드를 최대 5개까지 넣고, 사람들의 관심도가 최근 90일 동안 어떻게 달라졌는지 한 그래프로 비교해 보세요.</p>
     </header>
 
     <section class="card" aria-label="키워드 입력">
@@ -352,10 +422,12 @@
             <circle cx="11" cy="11" r="7"></circle>
             <path d="m20 20-3.5-3.5"></path>
           </svg>
-          <input id="keyword-input" type="search" autocomplete="off" enterkeyhint="search" placeholder="예: Kimchi" aria-describedby="keyword-help">
+          <input id="keyword-input" type="search" autocomplete="off" enterkeyhint="enter" placeholder="예: Kimchi" aria-describedby="keyword-help input-msg">
           <button id="compare-button" type="submit">비교하기</button>
         </div>
-        <p id="keyword-help" class="helper">영어 위키백과 문서 제목으로 찾아요. 예: Kimchi, Coca-Cola, Netflix</p>
+        <p id="keyword-help" class="helper">영어 위키백과 문서 제목으로 찾아요. Enter나 쉼표(,)로 하나씩 추가 · <span id="keyword-count" class="count">0 / 5</span></p>
+        <p id="input-msg" class="input-msg" role="alert" hidden></p>
+        <ul id="chip-list" class="chips" aria-label="넣은 키워드"></ul>
       </form>
       <ul id="status-list" class="status-list" aria-live="polite"></ul>
     </section>
@@ -364,7 +436,7 @@
       <div class="chart-head">
         <div>
           <h2 id="chart-title">시간 흐름에 따른 관심도</h2>
-          <p class="chart-sub">기간 내 최댓값 = 100 · <span id="period-text"></span></p>
+          <p class="chart-sub">모든 키워드 중 최댓값 = 100 · <span id="period-text"></span></p>
         </div>
         <ul id="legend" class="legend" hidden></ul>
       </div>
@@ -387,10 +459,14 @@
 
   <script>
     const DAYS = 90;
+    const MAX_KEYWORDS = 5; // 네이버 데이터랩도 5개까지 (CLAUDE.md 5번 규칙)
 
     const form = document.getElementById('keyword-form');
     const input = document.getElementById('keyword-input');
     const button = document.getElementById('compare-button');
+    const keywordCount = document.getElementById('keyword-count');
+    const inputMsg = document.getElementById('input-msg');
+    const chipList = document.getElementById('chip-list');
     const statusList = document.getElementById('status-list');
     const periodText = document.getElementById('period-text');
     const legend = document.getElementById('legend');
@@ -401,7 +477,9 @@
 
     const css = getComputedStyle(document.documentElement);
     const color = name => css.getPropertyValue(name).trim();
+    const SERIES_COLORS = ['--series-1', '--series-2', '--series-3', '--series-4', '--series-5'].map(color);
 
+    let keywords = []; // { text, color }
     let chart = null;
 
     // ---------- 날짜 (위키 조회수는 UTC 기준 하루 단위로 집계됨) ----------
@@ -439,7 +517,7 @@
       return `${API.wikiPageviews}/${title}/daily/${toApiDate(period.start)}/${toApiDate(period.end)}`;
     }
 
-    // 키워드 하나를 따로 부른다 (나중에 여러 개를 불러도 하나가 실패하면 그것만 실패)
+    // 키워드 하나를 따로 부른다 (하나가 실패해도 그것만 실패)
     async function loadKeyword(keyword, period) {
       const url = buildUrl(keyword, period);
       try {
@@ -454,22 +532,28 @@
       }
     }
 
-    // ---------- 조회수 → 지수(기간 내 최댓값 = 100) ----------
-    function toSeries(items, period) {
-      const viewsByDate = {};
-      items.forEach(item => { viewsByDate[item.timestamp.slice(0, 8)] = item.views; });
-
-      // 조회가 0인 날은 응답에 빠져 있어서 0으로 채우고, 아직 집계 안 된 마지막 날들은 잘라 낸다
-      const lastDate = items[items.length - 1].timestamp.slice(0, 8);
-      const days = [];
-      for (let d = period.start; d <= period.end; d = addDays(d, 1)) {
-        const key = toApiDate(d);
-        if (key > lastDate) break;
-        days.push({ date: d, views: viewsByDate[key] || 0 });
+    // ---------- 조회수 → 지수(모든 키워드 중 최댓값 = 100) ----------
+    function buildChartData(results, period) {
+      // 아직 집계 안 된 마지막 날들은 잘라 낸다 (키워드 중 가장 이른 마지막 날 기준으로 맞춤)
+      const lastDate = results.map(r => r.items[r.items.length - 1].timestamp.slice(0, 8)).sort()[0];
+      const dates = [];
+      for (let d = period.start; d <= period.end && toApiDate(d) <= lastDate; d = addDays(d, 1)) {
+        dates.push(d);
       }
 
-      const max = Math.max(...days.map(day => day.views));
-      return days.map(day => ({ ...day, index: max ? Math.round(day.views / max * 100) : 0 }));
+      // 조회가 0인 날은 응답에 빠져 있어서 0으로 채운다
+      const series = results.map(r => {
+        const viewsByDate = {};
+        r.items.forEach(item => { viewsByDate[item.timestamp.slice(0, 8)] = item.views; });
+        return { keyword: r.keyword, color: r.color, views: dates.map(d => viewsByDate[toApiDate(d)] || 0) };
+      });
+
+      // 키워드끼리 비교되게 전체 최댓값 하나를 기준으로 100을 맞춘다
+      const max = Math.max(...series.flatMap(s => s.views));
+      series.forEach(s => {
+        s.index = s.views.map(v => (max ? Math.round(v / max * 100) : 0));
+      });
+      return { dates, series };
     }
 
     // ---------- 화면 ----------
@@ -479,29 +563,206 @@
       empty: k => `"${k}"은(는) 이 기간에 조회 기록이 없어요.`,
       server: k => `"${k}" 데이터를 불러오지 못했어요. 위키 서버가 잠시 응답하지 않아요. 잠시 뒤 다시 눌러 보세요.`,
       network: k => `"${k}" 데이터를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 눌러 보세요.`,
+      limit: () => `키워드는 최대 ${MAX_KEYWORDS}개까지 비교할 수 있어요. ×를 눌러 하나를 빼면 다시 넣을 수 있어요.`,
+      duplicate: k => `"${k}"은(는) 이미 넣은 키워드예요.`,
+      noKeyword: () => '키워드를 넣어 주세요.',
+      allFailed: () => '불러온 키워드가 없어 그래프를 그리지 못했어요. 위의 안내를 확인해 주세요.',
       noChartLib: () => '그래프 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.',
     };
 
-    function setStatus(type, text) {
-      statusList.innerHTML = '';
-      if (!text) return;
-      const li = document.createElement('li');
-      li.className = type;
-      li.textContent = text;
-      statusList.appendChild(li);
+    function showInputMsg(text) {
+      inputMsg.textContent = text;
+      inputMsg.hidden = !text;
     }
 
-    function renderLegend(keyword) {
+    // ---------- 키워드 칩 (최대 5개) ----------
+    function isFull() { return keywords.length >= MAX_KEYWORDS; }
+
+    // 빠진 키워드의 색을 다시 쓴다 (칩 색 = 그래프 선 색)
+    function nextColor() {
+      return SERIES_COLORS.find(c => !keywords.some(k => k.color === c));
+    }
+
+    // 입력창 글자를 칩으로 옮긴다. 쉼표로 여러 개를 한 번에 넣어도 된다
+    function addFromInput() {
+      const parts = input.value.split(',').map(p => p.trim()).filter(Boolean);
+      let message = '';
+      while (parts.length) {
+        if (isFull()) { message = MESSAGES.limit(); break; }
+        const text = parts.shift();
+        const title = toWikiTitle(text).toLowerCase();
+        if (keywords.some(k => toWikiTitle(k.text).toLowerCase() === title)) {
+          message = MESSAGES.duplicate(text);
+          continue;
+        }
+        keywords.push({ text, color: nextColor() });
+      }
+      input.value = parts.join(', '); // 막혀서 못 넣은 키워드는 입력창에 남겨 둔다
+      showInputMsg(message);
+      renderChips();
+    }
+
+    function removeKeyword(keyword) {
+      keywords = keywords.filter(k => k !== keyword);
+      showInputMsg('');
+      renderChips();
+      input.focus();
+    }
+
+    function renderChips() {
+      chipList.innerHTML = '';
+      keywords.forEach(k => {
+        const li = document.createElement('li');
+        li.className = 'chip';
+
+        const dot = document.createElement('span');
+        dot.className = 'legend-dot';
+        dot.style.background = k.color;
+        dot.setAttribute('aria-hidden', 'true');
+
+        const text = document.createElement('span');
+        text.className = 'chip-text';
+        text.textContent = k.text;
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'chip-remove';
+        remove.setAttribute('aria-label', `${k.text} 빼기`);
+        remove.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>';
+        remove.addEventListener('click', () => removeKeyword(k));
+
+        li.append(dot, text, remove);
+        chipList.appendChild(li);
+      });
+
+      keywordCount.textContent = `${keywords.length} / ${MAX_KEYWORDS}`;
+      // 5개가 차면 6번째 입력을 막는다
+      input.readOnly = isFull();
+      input.placeholder = isFull() ? `최대 ${MAX_KEYWORDS}개까지 넣었어요` : (keywords.length ? '키워드 더 넣기' : '예: Kimchi');
+    }
+
+    input.addEventListener('keydown', event => {
+      if (event.isComposing) return; // 한글을 조합하는 중의 Enter는 무시
+      if (event.key === 'Enter' && input.value.trim()) {
+        event.preventDefault(); // 글자가 있으면 Enter = 칩 추가, 비어 있으면 Enter = 비교하기
+        addFromInput();
+      } else if (event.key === ',') {
+        event.preventDefault();
+        addFromInput();
+      } else if (isFull() && (event.key.length === 1 || event.key === 'Process')) {
+        showInputMsg(MESSAGES.limit()); // 6번째를 치려고 하면 안내
+      }
+    });
+
+    input.addEventListener('paste', () => {
+      if (isFull()) showInputMsg(MESSAGES.limit());
+    });
+
+    // ---------- 그래프 ----------
+    function renderLegend(series) {
       legend.innerHTML = '';
-      const li = document.createElement('li');
-      const dot = document.createElement('span');
-      dot.className = 'legend-dot';
-      dot.setAttribute('aria-hidden', 'true');
-      li.append(dot, keyword);
-      legend.appendChild(li);
+      series.forEach(s => {
+        const li = document.createElement('li');
+        const dot = document.createElement('span');
+        dot.className = 'legend-dot';
+        dot.style.background = s.color;
+        dot.setAttribute('aria-hidden', 'true');
+        li.append(dot, s.keyword);
+        legend.appendChild(li);
+      });
       legend.hidden = false;
     }
 
+    function showEmptyChart(text) {
+      if (chart) chart.destroy();
+      chart = null;
+      canvas.hidden = true;
+      legend.hidden = true;
+      chartEmpty.textContent = text;
+      chartEmpty.hidden = false;
+    }
+
+    function renderChart({ dates, series }) {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const single = series.length === 1;
+
+      // 안내 문구를 먼저 숨기고 캔버스를 보여 준 다음 그린다 (칸 크기에 맞춰 그려지게)
+      chartEmpty.hidden = true;
+      canvas.hidden = false;
+      canvas.setAttribute('aria-label', `${series.map(s => s.keyword).join(', ')} 최근 90일 관심도 선 그래프, 세로축 0~100`);
+      renderLegend(series);
+
+      if (chart) chart.destroy();
+      chart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: dates.map(toLabel),
+          datasets: series.map(s => ({
+            label: s.keyword,
+            data: s.index,
+            borderColor: s.color,
+            backgroundColor: `${s.color}10`, // 아주 연한 채우기 (선이 겹치지 않게 키워드 1개일 때만)
+            fill: single,
+            borderWidth: 2.5,
+            tension: 0.3,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBorderWidth: 2,
+            pointHoverBorderColor: s.color,
+            pointHoverBackgroundColor: '#ffffff',
+          })),
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false, // 칸(.chart-area)의 높이를 그대로 따른다
+          animation: reduceMotion ? false : { duration: 400 },
+          interaction: { mode: 'index', intersect: false },
+          layout: { padding: { top: 4 } },
+          scales: {
+            y: {
+              min: 0,
+              max: 100, // 세로축 최대 = 100 (CLAUDE.md 5번 규칙)
+              border: { display: false },
+              ticks: { stepSize: 25, padding: 8, color: color('--muted'), font: { size: 13 } },
+              grid: { color: color('--chart-grid') },
+            },
+            x: {
+              border: { color: color('--line') },
+              ticks: { maxTicksLimit: 7, maxRotation: 0, padding: 8, color: color('--muted'), font: { size: 13 } },
+              grid: { display: false },
+            },
+          },
+          plugins: {
+            legend: { display: false }, // 범례는 그래프 위 칩으로 따로 보여 준다
+            tooltip: {
+              backgroundColor: '#ffffff',
+              titleColor: color('--text'),
+              bodyColor: color('--text'),
+              borderColor: color('--line'),
+              borderWidth: 1,
+              padding: 12,
+              boxPadding: 4,
+              usePointStyle: true,
+              itemSort: (a, b) => b.raw - a.raw, // 관심도 높은 키워드부터
+              callbacks: {
+                title: items => toIsoDate(dates[items[0].dataIndex]),
+                label: item => {
+                  const s = series[item.datasetIndex];
+                  const i = item.dataIndex;
+                  return ` ${s.keyword}: 지수 ${s.index[i]} (조회 ${s.views[i].toLocaleString('ko-KR')}회)`;
+                },
+                labelColor: item => {
+                  const c = series[item.datasetIndex].color;
+                  return { borderColor: c, backgroundColor: c };
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // ---------- 🔌 API 상자 ----------
     function renderApiList(results) {
       apiList.innerHTML = '';
       apiEmpty.hidden = results.length > 0;
@@ -534,105 +795,52 @@
       });
     }
 
-    function renderChart(keyword, series) {
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      // 안내 문구를 먼저 숨기고 캔버스를 보여 준 다음 그린다 (칸 크기에 맞춰 그려지게)
-      chartEmpty.hidden = true;
-      canvas.hidden = false;
-      canvas.setAttribute('aria-label', `"${keyword}" 최근 90일 관심도 선 그래프, 세로축 0~100`);
-      renderLegend(keyword);
-
-      if (chart) chart.destroy();
-      chart = new Chart(canvas, {
-        type: 'line',
-        data: {
-          labels: series.map(day => toLabel(day.date)),
-          datasets: [{
-            label: keyword,
-            data: series.map(day => day.index),
-            borderColor: color('--chart-line'),
-            backgroundColor: color('--chart-fill'),
-            fill: true,
-            borderWidth: 2.5,
-            tension: 0.3,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-            pointHoverBorderWidth: 2,
-            pointHoverBackgroundColor: '#ffffff',
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false, // 칸(.chart-area)의 높이를 그대로 따른다
-          animation: reduceMotion ? false : { duration: 400 },
-          interaction: { mode: 'index', intersect: false },
-          layout: { padding: { top: 4 } },
-          scales: {
-            y: {
-              min: 0,
-              max: 100, // 세로축 최대 = 100 (CLAUDE.md 5번 규칙)
-              border: { display: false },
-              ticks: { stepSize: 25, padding: 8, color: color('--muted'), font: { size: 13 } },
-              grid: { color: color('--chart-grid') },
-            },
-            x: {
-              border: { color: color('--line') },
-              ticks: { maxTicksLimit: 7, maxRotation: 0, padding: 8, color: color('--muted'), font: { size: 13 } },
-              grid: { display: false },
-            },
-          },
-          plugins: {
-            legend: { display: false }, // 범례는 그래프 위 칩으로 따로 보여 준다
-            tooltip: {
-              backgroundColor: '#ffffff',
-              titleColor: color('--text'),
-              bodyColor: color('--text'),
-              borderColor: color('--line'),
-              borderWidth: 1,
-              padding: 12,
-              boxPadding: 4,
-              callbacks: {
-                title: items => toIsoDate(series[items[0].dataIndex].date),
-                label: item => {
-                  const day = series[item.dataIndex];
-                  return ` ${keyword}: 지수 ${day.index} (조회 ${day.views.toLocaleString('ko-KR')}회)`;
-                },
-              },
-            },
-          },
-        },
-      });
-    }
-
+    // ---------- 비교하기 ----------
     form.addEventListener('submit', async event => {
       event.preventDefault();
-      const keyword = input.value.trim();
-      if (!keyword) {
-        setStatus('error', '키워드를 넣어 주세요.');
+      if (input.value.trim()) addFromInput(); // 입력창에 남은 글자도 칩으로 넣고 비교
+      if (keywords.length === 0) {
+        showInputMsg(MESSAGES.noKeyword());
         input.focus();
         return;
       }
       if (typeof Chart === 'undefined') {
-        setStatus('error', MESSAGES.noChartLib());
+        showInputMsg(MESSAGES.noChartLib());
         return;
       }
 
       const period = getPeriod();
+      const targets = [...keywords];
       button.disabled = true;
       button.textContent = '불러오는 중…';
-      setStatus('loading', MESSAGES.loading(keyword));
+      statusList.innerHTML = '';
 
-      const result = await loadKeyword(keyword, period);
-      renderApiList([result]);
+      // 키워드마다 따로 부르고, 끝나는 대로 각자 안내를 바꾼다 (하나가 실패해도 나머지는 그래프에)
+      const results = await Promise.all(targets.map(async k => {
+        const li = document.createElement('li');
+        li.className = 'loading';
+        li.textContent = MESSAGES.loading(k.text);
+        statusList.appendChild(li);
 
-      if (result.ok) {
-        const series = toSeries(result.items, period);
-        showPeriod(series[0].date, series[series.length - 1].date);
-        renderChart(keyword, series);
-        setStatus('', '');
+        const result = await loadKeyword(k.text, period);
+        if (result.ok) {
+          li.remove();
+        } else {
+          li.className = 'error';
+          li.textContent = MESSAGES[result.reason](k.text);
+        }
+        return { ...result, color: k.color };
+      }));
+
+      renderApiList(results);
+
+      const loaded = results.filter(r => r.ok);
+      if (loaded.length) {
+        const data = buildChartData(loaded, period);
+        showPeriod(data.dates[0], data.dates[data.dates.length - 1]);
+        renderChart(data);
       } else {
-        setStatus('error', MESSAGES[result.reason](keyword));
+        showEmptyChart(MESSAGES.allFailed());
       }
 
       button.disabled = false;

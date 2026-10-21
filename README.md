@@ -15,6 +15,12 @@
 
 ## API 문서
 
-| API 이름 | 주소 | 방식 | 보내는 값 | 받는 값 | 키 필요 |
+**Wikimedia Pageviews API** (영어 위키백과 문서별 조회수)
+
+| ① 기본 주소 | ② 메뉴 | ③ 옵션 | ④ 응답 모양 | ⑤ 키 | ⑥ 규칙 |
 |---|---|---|---|---|---|
-| | | | | | |
+| `https://wikimedia.org/api/rest_v1` | `/metrics/pageviews/per-article` (문서별 조회수, GET) | 주소 뒤에 순서대로 붙임:<br>`/{프로젝트}/{접속}/{사용자}/{문서제목}/{단위}/{시작일}/{종료일}`<br>· 프로젝트: **`en.wikipedia`**<br>· 접속: **`all-access`** / `desktop` / `mobile-web` / `mobile-app`<br>· 사용자: **`user`**(사람) / `spider` / `automated` / `all-agents`<br>· 문서제목: 예 `Kimchi` (띄어쓰기는 `_`)<br>· 단위: **`daily`** / `monthly`<br>· 시작일·종료일: `YYYYMMDD`<br>(굵은 글씨 = 이 서비스가 쓰는 값) | JSON `{ "items": [ … ] }`<br>항목 하나 = 하루:<br>`timestamp`(예 `2026101900`), `views`(그날 조회수), `article`, `project`, `access`, `agent`, `granularity`<br>· 조회가 0인 날은 목록에서 빠짐<br>· 없는 문서는 `404` | 필요 없음 | · **데이터 라이선스: CC0 1.0** (퍼블릭 도메인, 자유 이용)<br>· **User-Agent 표기 요청:** 모든 요청에 앱 이름·연락처를 알리는 User-Agent를 보내야 하고, 없으면 예고 없이 차단될 수 있음. 브라우저 JavaScript는 User-Agent를 바꿀 수 없어 `Api-User-Agent` 헤더를 대신 씀<br>· **User-Agent 한계(v1):** 브라우저에서 `Api-User-Agent`를 붙이면 사전 요청이 `405`로 거절돼 호출이 실패하므로 v1은 브라우저 기본 User-Agent만 보냄 → v2에서 서버를 거쳐 부를 때 앱 이름·연락처를 넣음<br>· **요청 예절:** 한꺼번에 너무 많이 보내지 않기 (정확한 한도는 공식 Rate limits 문서 기준)<br>· **데이터 한계:** 하루 단위 집계라 실시간이 아님, 오늘 데이터는 아직 없음<br>· **출처 표기:** 화면에 "Data: Wikimedia Pageviews API"와 기준 기간을 적음 |
+
+예시: [Kimchi의 2026-09-01 ~ 2026-10-20 일별 조회수](https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Kimchi/daily/20260901/20261020)
+
+참고: [Wikimedia APIs 접근 정책](https://www.mediawiki.org/wiki/Wikimedia_APIs/Access_policy) · [Analytics API 접근 정책](https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/documentation/access-policy.html)
