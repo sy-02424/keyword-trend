@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>키워드 관심도 비교</title>
+
+  <script>
+    // 🔌 이 화면이 쓰는 API 주소는 모두 여기 한 곳에 모은다 (다음 이슈에서 채움)
+    const API = {
+      // 🔌 wikiPageviews: 'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/...'
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a1a;       /* 흰 배경 대비 17.4:1 */
+      --muted: #555555;      /* 흰 배경 대비 7.5:1 */
+      --line: #d0d4da;
+      --box-bg: #f5f7fa;     /* --muted 대비 6.9:1 */
+      --accent: #1f5fbf;     /* 흰 배경 대비 6.1:1 */
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 16px 48px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      line-height: 1.3;
+    }
+
+    .intro {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    /* 🔌 이 화면이 쓰는 API 상자 (CLAUDE.md 4번 규칙) */
+    .api-box {
+      margin-top: 48px;
+      padding: 16px;
+      background: var(--box-bg);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+    }
+
+    .api-box h2 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .api-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .api-box ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      font-size: 15px;
+      overflow-wrap: anywhere; /* 긴 API 주소가 폰 화면 밖으로 나가지 않게 */
+    }
+
+    .api-box a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>키워드 관심도 비교</h1>
+      <p class="intro">키워드를 최대 5개까지 넣고, 사람들의 관심도가 어떻게 달라지는지 그래프로 비교해 보세요.</p>
+    </header>
+
+    <section class="api-box" aria-labelledby="api-box-title">
+      <h2 id="api-box-title">🔌 이 화면이 쓰는 API</h2>
+      <p id="api-empty">아직 부른 API가 없어요. 키워드를 비교하면 여기에 실제로 부른 주소와 "새 탭에서 원본 JSON 보기" 링크가 나타나요.</p>
+      <ul id="api-list"></ul>
+    </section>
+  </main>
+</body>
+</html>
