@@ -20,29 +20,31 @@
 
   <style>
     :root {
-      --bg: #f6f8fb;
+      /* 회색 3단계 + 인디고 1색 */
+      --bg: #f4f5f7;          /* 페이지 배경 (연한 회색) */
       --card: #ffffff;
-      --text: #202124;        /* 흰 배경 대비 16.1:1 */
-      --muted: #5f6368;       /* 흰 배경 대비 6.0:1, 페이지 배경 대비 5.7:1 */
-      --line: #e3e7ed;
-      --field-line: #c4c9d1;
+      --text: #202124;        /* 회색 1: 글자, 흰 배경 대비 16.1:1 */
+      --muted: #5f6368;       /* 회색 2: 보조 글자, 흰 배경 대비 6.0:1, 페이지 배경 대비 5.5:1 */
+      --line: #e3e5e8;        /* 회색 3: 테두리·구분선 */
+      --field-line: #c4c9d1;  /* 입력창 테두리 */
       --primary: #4338ca;     /* 인디고, 흰 글씨 대비 7.9:1 */
       --primary-hover: #3730a3;
-      --primary-soft: rgba(67, 56, 202, 0.16);
+      --primary-soft: rgba(67, 56, 202, 0.14);
       /* 그래프 선 5색: 인디고 중심, 흰 배경 대비 모두 3:1 이상 */
       --series-1: #4f46e5;    /* 인디고 */
       --series-2: #ea580c;    /* 주황 */
       --series-3: #0d9488;    /* 청록 */
       --series-4: #db2777;    /* 분홍 */
       --series-5: #a16207;    /* 황토 */
-      --chart-grid: #eef1f5;
+      --chart-grid: #eef0f3;
       --up: #137333;          /* 오름 (초록), 흰 배경 대비 6.0:1 */
       --warn-text: #8a4b00;   /* 흰 배경 대비 6.8:1 */
       --error-text: #b3261e;  /* 오류 배경 대비 5.8:1, 내림(빨강)에도 씀 */
       --error-bg: #fcefee;
-      --box-bg: #eef1f5;      /* --muted 대비 5.3:1 */
-      --shadow: 0 1px 2px rgba(32, 33, 36, 0.04), 0 2px 8px rgba(32, 33, 36, 0.04);
-      --radius: 16px;
+      --box-bg: #f1f2f4;      /* --muted 대비 5.4:1 */
+      --radius: 12px;
+      --gap: 16px;
+      --pad: 20px;
     }
 
     * { box-sizing: border-box; }
@@ -55,56 +57,95 @@
       background: var(--bg);
       color: var(--text);
       font-family: "Pretendard Variable", Pretendard, system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
+      font-size: 14px;
+      line-height: 1.5;
       word-break: keep-all; /* 한글을 단어 중간("평/균")에서 끊지 않게 */
     }
 
     main {
-      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 56px 24px 64px;
-    }
-
-    header { margin-bottom: 32px; }
-
-    h1 {
-      margin: 0 0 6px;
-      font-size: 32px;
-      line-height: 1.25;
-      letter-spacing: -0.02em;
-    }
-
-    .intro {
-      margin: 0;
-      color: var(--muted);
-      font-size: 17px;
+      padding: 20px 24px 32px;
     }
 
     .card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 32px;
+      box-shadow: 0 1px 2px rgba(32, 33, 36, 0.03); /* 그림자는 거의 없게 */
+      padding: var(--pad);
     }
 
-    .card + .card { margin-top: 24px; }
-
-    /* ---------- 키워드 입력: 입력창과 버튼을 한 줄로 ---------- */
-    .field-label {
-      display: block;
-      margin-bottom: 10px;
+    .card-title {
+      margin: 0;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .card-sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    /* ---------- 상단 헤더: 왼쪽 서비스 이름, 오른쪽 기준 기간·출처 ---------- */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4px 16px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta-sep { margin: 0 6px; }
+
+    /* ---------- 검색창 + 칩 한 줄 ---------- */
+    .search-card { padding: 12px 16px; }
+
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+    }
+
+    .field-label {
+      flex: 0 0 auto;
+      font-size: 13px;
+      font-weight: 700;
     }
 
     .search-bar {
+      flex: 0 1 400px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      min-height: 60px;
-      padding: 6px 6px 6px 20px;
+      gap: 6px;
+      min-width: 0;
+      height: 40px;
+      padding: 3px 3px 3px 12px;
       border: 1px solid var(--field-line);
       border-radius: 999px;
       background: var(--card);
@@ -115,43 +156,43 @@
 
     .search-bar:focus-within {
       border-color: var(--primary);
-      box-shadow: 0 0 0 4px var(--primary-soft);
+      box-shadow: 0 0 0 3px var(--primary-soft);
     }
 
     .search-icon {
       flex: 0 0 auto;
-      width: 22px;
-      height: 22px;
+      width: 16px;
+      height: 16px;
       color: var(--muted);
     }
 
     .search-bar input {
       flex: 1 1 auto;
       min-width: 0;
-      height: 48px;
-      padding: 0 4px;
+      height: 32px;
+      padding: 0 2px;
       border: 0;
       outline: none; /* 테두리 강조는 .search-bar:focus-within이 대신 보여 준다 */
       background: transparent;
       color: var(--text);
       font: inherit;
-      font-size: 18px;
+      font-size: 14px;
     }
 
-    .search-bar input::placeholder { color: var(--muted); } /* 흐린 회색(3.7:1)은 규칙 미달이라 --muted 사용 */
+    .search-bar input::placeholder { color: var(--muted); }
     .search-bar input::-webkit-search-cancel-button { cursor: pointer; }
 
     .search-bar button {
       flex: 0 0 auto;
-      height: 48px;
-      padding: 0 28px;
+      height: 32px;
+      padding: 0 16px;
       border: 0;
       border-radius: 999px;
       background: var(--primary);
       color: #ffffff;
       font: inherit;
-      font-size: 17px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
       transition: background-color 200ms ease;
     }
@@ -159,66 +200,67 @@
     .search-bar button:hover { background: var(--primary-hover); }
     .search-bar button:disabled { opacity: 0.75; cursor: wait; }
 
-    .search-bar button:focus-visible,
-    .chip-remove:focus-visible,
-    a:focus-visible {
-      outline: 2px solid var(--primary);
-      outline-offset: 2px;
+    .count {
+      flex: 0 0 auto;
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
     }
 
     .helper {
-      margin: 10px 0 0 20px;
+      margin: 6px 0 0;
       color: var(--muted);
-      font-size: 15px;
+      font-size: 12px;
     }
-
-    .count { font-weight: 600; color: var(--text); }
 
     /* "최대 5개까지" 같은 입력 안내 */
     .input-msg {
-      margin: 6px 0 0 20px;
+      margin: 4px 0 0;
       color: var(--error-text);
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
     }
 
     /* 넣은 키워드 칩 (그래프 선과 같은 색 점) */
     .chips {
+      flex: 1 1 auto;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
+      min-width: 0;
       margin: 0;
       padding: 0;
       list-style: none;
     }
 
-    .chips:not(:empty) { margin-top: 16px; }
-
     .chip-item {
       display: inline-flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 4px 8px;
+      gap: 2px 6px;
       max-width: 100%;
     }
 
     /* 조회가 너무 적은 키워드 옆 안내 */
     .chip-warn {
       color: var(--warn-text);
-      font-size: 15px;
+      font-size: 12px;
       font-weight: 600;
     }
 
     .chip {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       max-width: 100%;
-      padding: 4px 4px 4px 14px;
+      height: 30px;
+      padding: 0 2px 0 10px;
       border: 1px solid var(--line);
       border-radius: 999px;
       background: var(--card);
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
     }
 
@@ -234,8 +276,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       padding: 0;
       border: 0;
       border-radius: 50%;
@@ -250,6 +292,14 @@
       color: var(--text);
     }
 
+    .legend-dot {
+      flex: 0 0 auto;
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
     /* 키워드별 로딩·실패 안내 */
     .status-list {
       list-style: none;
@@ -257,15 +307,15 @@
       padding: 0;
     }
 
-    .status-list:not(:empty) { margin-top: 16px; }
+    .status-list:not(:empty) { margin-top: 8px; }
 
     .status-list li {
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 15px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
     }
 
-    .status-list li + li { margin-top: 8px; }
+    .status-list li + li { margin-top: 4px; }
 
     .status-list .loading {
       background: var(--box-bg);
@@ -277,54 +327,147 @@
       color: var(--error-text);
     }
 
-    /* ---------- 그래프 카드 ---------- */
-    /* 제목·기준 기간은 왼쪽, 기간 버튼은 항상 오른쪽 위 (문구가 길어지면 문구만 줄바꿈) */
-    .chart-head {
+    /* ---------- 요약 카드 3장: 질문 → 큰 글씨 답 → 작은 숫자 한 줄 ---------- */
+    .summary {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-areas:
-        "title tabs"
-        "sub   tabs";
-      align-items: start;
-      gap: 2px 24px;
-      margin-bottom: 24px;
-    }
-
-    .chart-head h2 {
-      grid-area: title;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--gap);
       margin: 0;
-      font-size: 20px;
-      line-height: 1.4;
+      padding: 0;
+      list-style: none;
     }
 
-    .chart-sub {
-      grid-area: sub;
+    .stat {
+      position: relative;
+      min-width: 0;
+      padding: 16px var(--pad);
+    }
+
+    .stat-head {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-title {
       margin: 0;
       color: var(--muted);
-      font-size: 15px;
+      font-size: 13px;
+      font-weight: 600;
     }
 
-    .chart-head .period-tabs { grid-area: tabs; }
+    /* ⓘ: 마우스를 올리거나, 키보드로 고르거나, 눌러야(폰) 기준 설명이 보인다 */
+    .info {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      cursor: help;
+    }
+
+    .info:hover,
+    .info[aria-expanded="true"] { color: var(--primary); }
+
+    .tip {
+      display: none;
+      position: absolute;
+      top: 44px;
+      left: 12px;
+      right: 12px;
+      z-index: 10;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--text);
+      color: #ffffff;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .info:hover + .tip,
+    .info:focus-visible + .tip,
+    .info[aria-expanded="true"] + .tip { display: block; }
+
+    .stat-answer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      margin: 4px 0 2px;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+    }
+
+    .stat-answer .legend-dot { width: 10px; height: 10px; }
+
+    .stat-answer .name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stat-answer.is-empty { color: var(--muted); }
+
+    .stat-detail {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0 6px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 변화율: ▲ 초록 / ▼ 빨강 */
+    .delta { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .delta.up { color: var(--up); }
+    .delta.down { color: var(--error-text); }
+
+    /* ---------- 2열: 그래프(2/3) + 키워드 비교 표(1/3) ---------- */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: var(--gap);
+      align-items: stretch;
+    }
+
+    .chart-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px 16px;
+      margin-bottom: 12px;
+    }
 
     /* 기간 선택 (30일 / 90일 / 1년 / 3년) */
     .period-tabs {
+      flex: 0 0 auto;
       display: inline-flex;
-      gap: 4px;
-      padding: 4px;
+      gap: 2px;
+      padding: 3px;
       border-radius: 999px;
       background: var(--box-bg);
     }
 
     .period-tabs button {
-      min-width: 56px;
-      height: 40px;
-      padding: 0 14px;
+      min-width: 48px;
+      height: 30px;
+      padding: 0 12px;
       border: 0;
       border-radius: 999px;
       background: transparent;
       color: var(--muted);
       font: inherit;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: background-color 200ms ease, color 200ms ease;
@@ -340,137 +483,32 @@
 
     .period-tabs button:disabled { cursor: wait; }
 
-    .period-tabs button:focus-visible {
-      outline: 2px solid var(--primary);
-      outline-offset: 2px;
-    }
-
-    /* 요약 숫자 카드 3장 (그래프 위) */
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-      margin: 0 0 24px;
-      padding: 0;
-      list-style: none;
-    }
-
-    .stat {
-      min-width: 0;
-      padding: 16px 20px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--card);
-    }
-
-    .stat-label {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .stat-main {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px 10px;
-      margin: 6px 0 12px;
-    }
-
-    .stat-value {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* 변화율 큰 숫자: ▲ 초록 / ▼ 빨강 */
-    .stat-value.up { color: var(--up); }
-    .stat-value.down { color: var(--error-text); }
-
-    /* 큰 숫자 아래 작은 보조 숫자 (최근 7일 조회수) */
-    .stat-sub {
-      margin: -6px 0 12px;
-      color: var(--muted);
-      font-size: 15px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* 계산 기준 (본문 15px 규칙은 지키고, 구분선으로 한 단계 낮춰 보이게) */
-    .stat-basis {
-      margin: 10px 0 0;
-      padding-top: 8px;
-      border-top: 1px dashed var(--line);
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .stat-keyword {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .stat-keyword .name {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .rank {
-      flex: 0 0 auto;
-      padding: 0 8px;
-      border-radius: 999px;
-      background: var(--primary-soft);
-      color: var(--primary);
-    }
-
-    .stat-note {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
     .legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin: 0 0 16px;
+      gap: 4px 14px;
+      margin: 0 0 8px;
       padding: 0;
       list-style: none;
+      font-size: 12px;
+      font-weight: 600;
     }
 
     .legend li {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       max-width: 100%;
-      padding: 6px 14px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      font-size: 15px;
-      font-weight: 600;
       overflow-wrap: anywhere;
     }
 
-    .legend-dot {
-      flex: 0 0 auto;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    /* 그래프는 이 칸 안, 정해진 높이 안에서만 그려진다 */
+    /* 그래프는 이 칸 안, 정해진 높이 안에서만 그려진다 (키워드 넣기 전에는 낮게) */
     .chart-area {
       position: relative;
-      height: 340px;
+      height: 300px;
     }
+
+    .chart-area.is-empty { height: 200px; }
 
     .chart-area canvas {
       display: block;
@@ -488,92 +526,167 @@
       margin: 0;
       padding: 16px;
       border: 1px dashed var(--field-line);
-      border-radius: 12px;
+      border-radius: 8px;
       color: var(--muted);
-      font-size: 15px;
+      font-size: 13px;
       text-align: center;
     }
 
-    .notes {
-      margin: 24px 0 0;
-      padding: 16px 0 0;
-      border-top: 1px solid var(--line);
-      list-style: none;
-      color: var(--muted);
-      font-size: 15px;
+    /* 키워드 비교 표 */
+    .table-card { display: flex; flex-direction: column; }
+    .table-card .card-head { margin-bottom: 12px; }
+
+    .table-wrap {
+      overflow-x: auto; /* 아주 좁으면 표 안에서만 옆으로 밀리고, 화면은 가로 스크롤 없음 */
     }
 
-    .notes li + li { margin-top: 2px; }
-    .notes strong { color: var(--text); font-weight: 600; }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
 
-    /* ---------- 🔌 이 화면이 쓰는 API 상자 (CLAUDE.md 4번 규칙) ---------- */
+    .compare-table th {
+      padding: 0 6px 8px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .compare-table td {
+      padding: 10px 6px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .compare-table th:first-child,
+    .compare-table td:first-child { padding-left: 0; text-align: left; }
+    .compare-table th:last-child,
+    .compare-table td:last-child { padding-right: 0; }
+
+    .compare-table tbody tr:last-child td { border-bottom: 0; }
+
+    .cell-keyword {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 140px;
+      font-weight: 600;
+    }
+
+    .cell-keyword .name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cell-sub {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .na { color: var(--muted); font-size: 12px; }
+
+    .table-empty {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      margin: 0;
+      padding: 16px;
+      border: 1px dashed var(--field-line);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    /* ---------- 맨 아래: 안내 + 🔌 API 상자 (작게) ---------- */
+    .notes {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .notes strong { color: var(--text); font-weight: 700; }
+
+    /* 🔌 이 화면이 쓰는 API 상자 (CLAUDE.md 4번 규칙) */
     .api-box {
-      margin-top: 40px;
-      padding: 20px 24px;
+      padding: 12px 16px;
       background: var(--box-bg);
       border: 1px dashed var(--field-line);
       border-radius: var(--radius);
+      font-size: 12px;
     }
 
     .api-box h2 {
-      margin: 0 0 8px;
-      font-size: 17px;
+      margin: 0 0 4px;
+      font-size: 13px;
+      font-weight: 700;
     }
 
     .api-box p {
       margin: 0;
       color: var(--muted);
-      font-size: 15px;
     }
 
     .api-box ul {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+      gap: 8px 24px;
       margin: 0;
       padding: 0;
       list-style: none;
-      font-size: 15px;
     }
-
-    .api-box li + li { margin-top: 12px; }
 
     .api-box code {
       display: block;
-      margin: 4px 0;
+      margin: 2px 0;
+      color: var(--text);
       font-family: ui-monospace, Consolas, monospace;
-      font-size: 15px;
+      font-size: 12px;
       overflow-wrap: anywhere; /* 긴 API 주소가 폰 화면 밖으로 나가지 않게 */
     }
 
     .api-box a { color: var(--primary); }
     .api-box .fail { color: var(--error-text); }
 
-    @media (max-width: 640px) {
-      .summary { grid-template-columns: 1fr; gap: 12px; }
-      /* 폰: 제목 → 기간 버튼 한 줄 → 기준 기간 문구 */
-      .chart-head {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-areas:
-          "title"
-          "tabs"
-          "sub";
-        row-gap: 10px;
-      }
-      .period-tabs { display: flex; width: 100%; }
-      .period-tabs button { flex: 1 1 0; min-width: 0; height: 44px; padding: 0 8px; }
+    /* ---------- 태블릿 이하: 2열 → 1열 ---------- */
+    @media (max-width: 960px) {
+      .main-grid { grid-template-columns: minmax(0, 1fr); }
     }
 
-    @media (max-width: 480px) {
-      main { padding: 32px 16px 48px; }
-      header { margin-bottom: 24px; }
-      h1 { font-size: 26px; }
-      .card { padding: 20px; }
-      .card + .card { margin-top: 16px; }
-      .search-bar { min-height: 56px; padding-left: 14px; gap: 6px; }
-      .search-icon { width: 20px; height: 20px; }
-      .search-bar input { height: 44px; font-size: 16px; } /* 16px 미만이면 아이폰이 화면을 확대함 */
-      .search-bar button { height: 44px; padding: 0 18px; font-size: 16px; }
-      .helper, .input-msg { margin-left: 14px; }
-      .chart-area { height: 260px; }
-      .api-box { padding: 16px; }
+    /* ---------- 폰: 전부 한 줄씩 쌓기 ---------- */
+    @media (max-width: 720px) {
+      main { padding: 16px 16px 24px; gap: 12px; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .meta span { display: block; }
+      .meta .meta-sep { display: none; }
+      /* 표 제목은 줄바꿈해서 네 칸이 폰 폭 안에 들어오게 */
+      .compare-table th { white-space: normal; vertical-align: bottom; }
+      .compare-table th,
+      .compare-table td { padding-left: 4px; padding-right: 4px; }
+      .cell-keyword { max-width: 96px; }
+      .summary { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .search-bar { flex: 1 1 100%; height: 44px; }
+      .search-bar input { font-size: 16px; } /* 16px 미만이면 아이폰이 화면을 확대함 */
+      .search-bar button { height: 36px; }
+      .chip { height: 34px; }
+      .chip-remove { width: 30px; height: 30px; }
+      .chart-head { flex-direction: column; }
+      .period-tabs { display: flex; width: 100%; }
+      .period-tabs button { flex: 1 1 0; min-width: 0; height: 40px; }
+      .chart-area { height: 240px; }
+      .chart-area.is-empty { height: 180px; }
+      .info { width: 32px; height: 32px; }
+      .tip { top: 48px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -583,73 +696,114 @@
 </head>
 <body>
   <main>
-    <header>
+    <header class="topbar">
       <h1>키워드 관심도 비교</h1>
-      <p class="intro">키워드를 최대 5개까지 넣고, 사람들의 관심도가 30일부터 3년까지 어떻게 달라졌는지 한 그래프로 비교해 보세요.</p>
+      <p class="meta">
+        <span id="period-text"></span><span class="meta-sep" aria-hidden="true">·</span><span>Data: Wikimedia Pageviews API</span>
+      </p>
     </header>
 
-    <section class="card" aria-label="키워드 입력">
+    <section class="card search-card" aria-label="키워드 입력">
       <form id="keyword-form" role="search" novalidate>
-        <label class="field-label" for="keyword-input">키워드</label>
-        <div class="search-bar">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="7"></circle>
-            <path d="m20 20-3.5-3.5"></path>
-          </svg>
-          <input id="keyword-input" type="search" autocomplete="off" enterkeyhint="enter" placeholder="예: Kimchi" aria-describedby="keyword-help input-msg">
-          <button id="compare-button" type="submit">비교하기</button>
+        <div class="search-row">
+          <label class="field-label" for="keyword-input">키워드</label>
+          <div class="search-bar">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m20 20-3.5-3.5"></path>
+            </svg>
+            <input id="keyword-input" type="search" autocomplete="off" enterkeyhint="enter" placeholder="예: Kimchi" aria-describedby="keyword-help input-msg">
+            <button id="compare-button" type="submit">비교하기</button>
+          </div>
+          <ul id="chip-list" class="chips" aria-label="넣은 키워드"></ul>
+          <span id="keyword-count" class="count">0 / 5</span>
         </div>
-        <p id="keyword-help" class="helper">영어 위키백과 문서 제목으로 찾아요. Enter나 쉼표(,)로 하나씩 추가 · <span id="keyword-count" class="count">0 / 5</span></p>
+        <p id="keyword-help" class="helper">영어 위키백과 문서 제목으로 찾아요. Enter나 쉼표(,)로 하나씩 추가해요. (최대 5개)</p>
         <p id="input-msg" class="input-msg" role="alert" hidden></p>
-        <ul id="chip-list" class="chips" aria-label="넣은 키워드"></ul>
       </form>
       <ul id="status-list" class="status-list" aria-live="polite"></ul>
     </section>
 
-    <section class="card" aria-labelledby="chart-title">
-      <div class="chart-head">
-        <h2 id="chart-title">시간 흐름에 따른 관심도</h2>
-        <p class="chart-sub">모든 키워드 중 최댓값 = 100 · <span id="period-text"></span></p>
-        <div id="period-tabs" class="period-tabs" role="group" aria-label="기간 선택">
-          <button type="button" data-days="30" aria-pressed="false">30일</button>
-          <button type="button" data-days="90" aria-pressed="true">90일</button>
-          <button type="button" data-days="365" aria-pressed="false">1년</button>
-          <button type="button" data-days="1095" aria-pressed="false">3년</button>
+    <ul id="summary" class="summary" aria-label="요약">
+      <li class="card stat" data-stat="change">
+        <div class="stat-head">
+          <h2 class="stat-title">최근 7일 가장 크게 움직인 키워드</h2>
+          <button type="button" class="info" aria-label="계산 기준 보기" aria-expanded="false" aria-describedby="tip-change">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+          </button>
+          <span id="tip-change" class="tip" role="tooltip">직전 7일과 비교해 관심이 가장 크게 오르거나 내린 키워드예요. 고른 기간과 상관없이 최근 7일 기준이에요.</span>
         </div>
-      </div>
-      <ul id="summary" class="summary" aria-label="요약" hidden>
-        <li class="stat" data-stat="change">
-          <p class="stat-label">최근 7일 변화율</p>
-          <p class="stat-main"><span class="stat-value"></span></p>
-          <p class="stat-sub" hidden></p>
-          <p class="stat-keyword"></p>
-          <p class="stat-note"></p>
-          <p class="stat-basis">기간과 상관없이 최근 7일 기준</p>
-        </li>
-        <li class="stat" data-stat="peak">
-          <p class="stat-label">최고치 날짜</p>
-          <p class="stat-main"><span class="stat-value"></span></p>
-          <p class="stat-keyword"></p>
-          <p class="stat-note"></p>
-          <p class="stat-basis">하루 조회수 기준</p>
-        </li>
-        <li class="stat" data-stat="avg">
-          <p class="stat-label">일평균 조회수</p>
-          <p class="stat-main"><span class="stat-value"></span></p>
-          <p class="stat-keyword"></p>
-          <p class="stat-note"></p>
-        </li>
-      </ul>
-      <ul id="legend" class="legend" hidden></ul>
-      <div class="chart-area">
-        <canvas id="chart" role="img" aria-label="키워드 관심도 선 그래프" hidden></canvas>
-        <p id="chart-empty" class="chart-empty">키워드를 넣고 [비교하기]를 누르면 고른 기간의 그래프가 여기에 그려져요.</p>
-      </div>
-      <ul class="notes">
-        <li><strong>위키 조회수 = 정보 탐색 관심도이며 검색량이 아님</strong></li>
-        <li>Data: Wikimedia Pageviews API (영어 위키백과, 봇 제외 사람 조회, 하루 단위 집계)</li>
-      </ul>
-    </section>
+        <p class="stat-answer is-empty">—</p>
+        <p class="stat-detail">키워드를 넣으면 보여요</p>
+      </li>
+      <li class="card stat" data-stat="peak">
+        <div class="stat-head">
+          <h2 class="stat-title">하루 조회 최고 기록</h2>
+          <button type="button" class="info" aria-label="계산 기준 보기" aria-expanded="false" aria-describedby="tip-peak">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+          </button>
+          <span id="tip-peak" class="tip" role="tooltip">고른 기간에서 하루 조회수가 가장 많았던 기록이에요.</span>
+        </div>
+        <p class="stat-answer is-empty">—</p>
+        <p class="stat-detail">키워드를 넣으면 보여요</p>
+      </li>
+      <li class="card stat" data-stat="avg">
+        <div class="stat-head">
+          <h2 class="stat-title">평소 관심이 가장 높은 키워드</h2>
+          <button type="button" class="info" aria-label="계산 기준 보기" aria-expanded="false" aria-describedby="tip-avg">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+          </button>
+          <span id="tip-avg" class="tip" role="tooltip">고른 기간의 하루 평균 조회수가 가장 높은 키워드예요.</span>
+        </div>
+        <p class="stat-answer is-empty">—</p>
+        <p class="stat-detail">키워드를 넣으면 보여요</p>
+      </li>
+    </ul>
+
+    <div class="main-grid">
+      <section class="card chart-card" aria-labelledby="chart-title">
+        <div class="chart-head">
+          <div>
+            <h2 id="chart-title" class="card-title">시간 흐름에 따른 관심도</h2>
+            <p class="card-sub">모든 키워드 중 최댓값 = 100</p>
+          </div>
+          <div id="period-tabs" class="period-tabs" role="group" aria-label="기간 선택">
+            <button type="button" data-days="30" aria-pressed="false">30일</button>
+            <button type="button" data-days="90" aria-pressed="true">90일</button>
+            <button type="button" data-days="365" aria-pressed="false">1년</button>
+            <button type="button" data-days="1095" aria-pressed="false">3년</button>
+          </div>
+        </div>
+        <ul id="legend" class="legend" hidden></ul>
+        <div id="chart-area" class="chart-area is-empty">
+          <canvas id="chart" role="img" aria-label="키워드 관심도 선 그래프" hidden></canvas>
+          <p id="chart-empty" class="chart-empty">키워드를 넣고 [비교하기]를 누르면 고른 기간의 그래프가 여기에 그려져요.</p>
+        </div>
+      </section>
+
+      <section class="card table-card" aria-labelledby="table-title">
+        <div class="card-head">
+          <h2 id="table-title" class="card-title">키워드 비교</h2>
+          <p class="card-sub">일평균 조회수 높은 순</p>
+        </div>
+        <div class="table-wrap">
+          <table id="compare-table" class="compare-table" hidden>
+            <thead>
+              <tr>
+                <th scope="col">키워드</th>
+                <th scope="col">일평균 조회수</th>
+                <th scope="col">최고치</th>
+                <th scope="col">최근 7일 변화율</th>
+              </tr>
+            </thead>
+            <tbody id="compare-body"></tbody>
+          </table>
+        </div>
+        <p id="table-empty" class="table-empty">키워드를 넣으면 여기에 비교 표가 나와요.</p>
+      </section>
+    </div>
+
+    <p class="notes"><strong>위키 조회수 = 정보 탐색 관심도이며 검색량이 아님</strong> · Data: Wikimedia Pageviews API (영어 위키백과, 봇 제외 사람 조회, 하루 단위 집계)</p>
 
     <section class="api-box" aria-labelledby="api-box-title">
       <h2 id="api-box-title">🔌 이 화면이 쓰는 API</h2>
@@ -678,8 +832,12 @@
     const periodButtons = document.querySelectorAll('#period-tabs button');
     const summary = document.getElementById('summary');
     const legend = document.getElementById('legend');
+    const chartArea = document.getElementById('chart-area');
     const chartEmpty = document.getElementById('chart-empty');
     const canvas = document.getElementById('chart');
+    const compareTable = document.getElementById('compare-table');
+    const compareBody = document.getElementById('compare-body');
+    const tableEmpty = document.getElementById('table-empty');
     const apiEmpty = document.getElementById('api-empty');
     const apiList = document.getElementById('api-list');
 
@@ -700,6 +858,18 @@
     function toApiDate(d) { return d.toISOString().slice(0, 10).replaceAll('-', ''); } // 20260901
     function toIsoDate(d) { return d.toISOString().slice(0, 10); }                      // 2026-09-01
     function toLabel(d) { return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`; }           // 9/1
+
+    // "2026년 1월 20일"
+    function toKoreanDay(d) {
+      return `${d.getUTCFullYear()}년 ${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`;
+    }
+
+    // 표 안의 짧은 날짜: "9/20" (연도가 다르면 "24.4.11")
+    function toShortDay(d, endDate) {
+      return d.getUTCFullYear() === endDate.getUTCFullYear()
+        ? toLabel(d)
+        : `${String(d.getUTCFullYear()).slice(2)}.${d.getUTCMonth() + 1}.${d.getUTCDate()}`;
+    }
 
     function isMonthly() { return periodDays >= MONTHLY_FROM_DAYS; }
 
@@ -849,12 +1019,16 @@
       });
 
       const top = key => perKeyword.filter(p => p[key] !== null).sort((a, b) => b[key] - a[key])[0] || null;
+      // 가장 크게 움직인 키워드: 오름·내림 상관없이 변화율 크기(절댓값)가 가장 큰 키워드 (계산 불가는 제외)
+      const move = perKeyword.filter(p => p.change !== null)
+        .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))[0] || null;
       return {
         perKeyword,
-        change: top('change'),
+        move,
         peak: top('peak'),
         avg: top('avg'),
         recent: n >= 7 ? [daily.dates[n - 7], daily.dates[n - 1]] : null,
+        end: daily.dates[n - 1],
       };
     }
 
@@ -877,6 +1051,29 @@
     function showInputMsg(text) {
       inputMsg.textContent = text;
       inputMsg.hidden = !text;
+    }
+
+    function makeDot(c) {
+      const dot = document.createElement('span');
+      dot.className = 'legend-dot';
+      dot.style.background = c;
+      dot.setAttribute('aria-hidden', 'true');
+      return dot;
+    }
+
+    function makeName(text) {
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.textContent = text;
+      return name;
+    }
+
+    // ▲ 5.4% (초록) / ▼ 5.0% (빨강) / – 0.0%
+    function makeDelta(p) {
+      const span = document.createElement('span');
+      span.className = p > 0 ? 'delta up' : p < 0 ? 'delta down' : 'delta';
+      span.textContent = `${p > 0 ? '▲' : p < 0 ? '▼' : '–'} ${Math.abs(p).toFixed(1)}%`;
+      return span;
     }
 
     // ---------- 키워드 칩 (최대 5개) ----------
@@ -928,11 +1125,6 @@
         const chip = document.createElement('span');
         chip.className = 'chip';
 
-        const dot = document.createElement('span');
-        dot.className = 'legend-dot';
-        dot.style.background = k.color;
-        dot.setAttribute('aria-hidden', 'true');
-
         const text = document.createElement('span');
         text.className = 'chip-text';
         text.textContent = k.text;
@@ -941,10 +1133,10 @@
         remove.type = 'button';
         remove.className = 'chip-remove';
         remove.setAttribute('aria-label', `${k.text} 빼기`);
-        remove.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>';
+        remove.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>';
         remove.addEventListener('click', () => removeKeyword(k));
 
-        chip.append(dot, text, remove);
+        chip.append(makeDot(k.color), text, remove);
         li.appendChild(chip);
 
         if (k.lowViews) {
@@ -980,89 +1172,134 @@
       if (isFull()) showInputMsg(MESSAGES.limit());
     });
 
+    // ---------- 요약 카드: 질문 → 큰 글씨 답 → 작은 숫자 한 줄 ----------
+    const formatCount = n => Math.round(n).toLocaleString('ko-KR');
+
+    function setStat(name, { answer, answerColor, detail }) {
+      const card = summary.querySelector(`[data-stat="${name}"]`);
+
+      const answerEl = card.querySelector('.stat-answer');
+      answerEl.innerHTML = '';
+      answerEl.classList.toggle('is-empty', !answerColor && answer === '—');
+      if (answerColor) answerEl.append(makeDot(answerColor), makeName(answer));
+      else answerEl.append(answer);
+
+      const detailEl = card.querySelector('.stat-detail');
+      detailEl.innerHTML = '';
+      detailEl.append(...detail);
+    }
+
+    function resetSummary() {
+      const empty = { answer: '—', detail: ['키워드를 넣으면 보여요'] };
+      setStat('change', empty);
+      setStat('peak', empty);
+      setStat('avg', empty);
+    }
+
+    function renderSummary({ move, peak, avg }) {
+      // 최근 7일 가장 크게 움직인 키워드: 큰 글씨 = 키워드, 작은 글씨 = ▲/▼ 변화율
+      if (move) {
+        setStat('change', {
+          answer: move.keyword,
+          answerColor: move.color,
+          detail: [makeDelta(move.change), '· 직전 7일 대비'],
+        });
+      } else {
+        setStat('change', { answer: '계산 불가', detail: ['조회가 적어 비교할 수 없어요'] });
+      }
+
+      // 하루 조회 최고 기록: 큰 글씨 = 그날 조회수, 작은 글씨 = 키워드 · 연도 포함 날짜
+      const peakName = document.createElement('span');
+      peakName.textContent = `${peak.keyword} · ${toKoreanDay(peak.peakDate)}`;
+      setStat('peak', {
+        answer: `${formatCount(peak.peak)}회`,
+        detail: [makeDot(peak.color), peakName],
+      });
+
+      setStat('avg', {
+        answer: avg.keyword,
+        answerColor: avg.color,
+        detail: [`하루 평균 ${formatCount(avg.avg)}회`],
+      });
+    }
+
+    // ⓘ: 폰처럼 마우스가 없을 때는 눌러서 열고 닫는다 (마우스·키보드는 CSS가 보여 줌)
+    summary.querySelectorAll('.info').forEach(info => {
+      info.addEventListener('click', () => {
+        info.setAttribute('aria-expanded', String(info.getAttribute('aria-expanded') !== 'true'));
+      });
+      info.addEventListener('blur', () => info.setAttribute('aria-expanded', 'false'));
+      info.addEventListener('keydown', event => {
+        if (event.key === 'Escape') info.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // ---------- 키워드 비교 표 (일평균 높은 순) ----------
+    function renderTable(perKeyword, end) {
+      compareBody.innerHTML = '';
+      [...perKeyword].sort((a, b) => b.avg - a.avg).forEach(p => {
+        const tr = document.createElement('tr');
+
+        const keywordTd = document.createElement('td');
+        const keywordCell = document.createElement('span');
+        keywordCell.className = 'cell-keyword';
+        keywordCell.append(makeDot(p.color), makeName(p.keyword));
+        keywordTd.appendChild(keywordCell);
+
+        const avgTd = document.createElement('td');
+        avgTd.textContent = formatCount(p.avg);
+
+        const peakTd = document.createElement('td');
+        const peakDay = document.createElement('span');
+        peakDay.className = 'cell-sub';
+        peakDay.textContent = toShortDay(p.peakDate, end);
+        peakTd.append(formatCount(p.peak), peakDay);
+
+        const changeTd = document.createElement('td');
+        if (p.change === null) {
+          const na = document.createElement('span');
+          na.className = 'na';
+          na.textContent = '계산 불가';
+          changeTd.appendChild(na);
+        } else {
+          changeTd.appendChild(makeDelta(p.change));
+        }
+
+        tr.append(keywordTd, avgTd, peakTd, changeTd);
+        compareBody.appendChild(tr);
+      });
+      compareTable.hidden = false;
+      tableEmpty.hidden = true;
+    }
+
+    function resetTable() {
+      compareBody.innerHTML = '';
+      compareTable.hidden = true;
+      tableEmpty.hidden = false;
+    }
+
     // ---------- 그래프 ----------
     function renderLegend(series) {
       legend.innerHTML = '';
       series.forEach(s => {
         const li = document.createElement('li');
-        const dot = document.createElement('span');
-        dot.className = 'legend-dot';
-        dot.style.background = s.color;
-        dot.setAttribute('aria-hidden', 'true');
-        li.append(dot, s.keyword);
+        li.append(makeDot(s.color), s.keyword);
         legend.appendChild(li);
       });
       legend.hidden = false;
     }
 
-    // ---------- 요약 카드 ----------
-    const formatCount = n => Math.round(n).toLocaleString('ko-KR');
-
-    function renderStat(name, { value, tone, sub, top, note }) {
-      const card = summary.querySelector(`[data-stat="${name}"]`);
-
-      const valueEl = card.querySelector('.stat-value');
-      valueEl.textContent = value;
-      valueEl.className = tone ? `stat-value ${tone}` : 'stat-value';
-
-      const subEl = card.querySelector('.stat-sub');
-      if (subEl) {
-        subEl.textContent = sub || '';
-        subEl.hidden = !sub;
-      }
-
-      const keywordEl = card.querySelector('.stat-keyword');
-      keywordEl.innerHTML = '';
-      if (top) {
-        const rank = document.createElement('span');
-        rank.className = 'rank';
-        rank.textContent = '1등';
-        const dot = document.createElement('span');
-        dot.className = 'legend-dot';
-        dot.style.background = top.color;
-        dot.setAttribute('aria-hidden', 'true');
-        const name = document.createElement('span');
-        name.className = 'name';
-        name.textContent = top.keyword;
-        keywordEl.append(rank, dot, name);
-      }
-
-      card.querySelector('.stat-note').textContent = note;
-    }
-
-    function renderSummary({ change, peak, avg, recent }) {
-      const recentText = recent ? `${toLabel(recent[0])}~${toLabel(recent[1])}` : '';
-      renderStat('change', change
-        ? {
-          // 큰 숫자 = 변화율 (▲ 초록 / ▼ 빨강 / – 그대로), 그 아래 작은 글씨 = 최근 7일 조회수
-          value: `${change.change > 0 ? '▲' : change.change < 0 ? '▼' : '–'} ${Math.abs(change.change).toFixed(1)}%`,
-          tone: change.change > 0 ? 'up' : change.change < 0 ? 'down' : '',
-          sub: `최근 7일 조회 ${formatCount(change.last7)}회`,
-          top: change,
-          note: `${recentText} · 직전 7일 대비`,
-        }
-        : { value: '계산 불가', top: null, note: '직전 7일 조회가 0이거나 하루 평균 10회 미만인 키워드는 빼고 비교해요' });
-      renderStat('peak', {
-        value: toIsoDate(peak.peakDate),
-        top: peak,
-        note: `가장 관심 높은 날 · 하루 조회 ${formatCount(peak.peak)}회`,
-      });
-      renderStat('avg', {
-        value: `${formatCount(avg.avg)}회`,
-        top: avg,
-        note: '가장 관심 높은 키워드 · 기간 내 하루 평균',
-      });
-      summary.hidden = false;
-    }
-
-    function showEmptyChart(text) {
+    // 그래프·요약·표를 비운다 (키워드가 없거나 모두 실패했을 때)
+    function showEmptyState(text) {
       if (chart) chart.destroy();
       chart = null;
       canvas.hidden = true;
       legend.hidden = true;
-      summary.hidden = true;
+      chartArea.classList.add('is-empty'); // 빈 그래프 칸은 낮게
       chartEmpty.textContent = text;
       chartEmpty.hidden = false;
+      resetSummary();
+      resetTable();
     }
 
     function renderChart({ points, series, monthly, ticks }) {
@@ -1072,6 +1309,7 @@
 
       // 안내 문구를 먼저 숨기고 캔버스를 보여 준 다음 그린다 (칸 크기에 맞춰 그려지게)
       chartEmpty.hidden = true;
+      chartArea.classList.remove('is-empty');
       canvas.hidden = false;
       canvas.setAttribute('aria-label', `${series.map(s => s.keyword).join(', ')} 최근 ${periodLabel} 관심도 선 그래프(${monthly ? '월 단위' : '하루 단위'}), 세로축 0~100`);
       renderLegend(series);
@@ -1088,10 +1326,10 @@
             borderColor: s.color,
             backgroundColor: `${s.color}10`, // 아주 연한 채우기 (선이 겹치지 않게 키워드 1개일 때만)
             fill: single,
-            borderWidth: 2.5,
+            borderWidth: 2,
             tension: 0.3,
             pointRadius: 0,
-            pointHoverRadius: 5,
+            pointHoverRadius: 4,
             pointHoverBorderWidth: 2,
             pointHoverBorderColor: s.color,
             pointHoverBackgroundColor: '#ffffff',
@@ -1108,7 +1346,7 @@
               min: 0,
               max: 100, // 세로축 최대 = 100 (CLAUDE.md 5번 규칙)
               border: { display: false },
-              ticks: { stepSize: 25, padding: 8, color: color('--muted'), font: { size: 13 } },
+              ticks: { stepSize: 25, padding: 6, color: color('--muted'), font: { size: 12 } },
               grid: { color: color('--chart-grid') },
             },
             x: {
@@ -1117,24 +1355,26 @@
                 autoSkip: false, // 눈금은 pickTicks가 고른 날짜에만 (간격을 기간별로 일정하게)
                 callback: (value, i) => (ticks.has(i) ? points[i].label : null),
                 maxRotation: 45, // 폰처럼 좁으면 글자를 기울여서 겹치지 않게
-                padding: 8,
+                padding: 6,
                 color: color('--muted'),
-                font: { size: 13 },
+                font: { size: 12 },
               },
               grid: { display: false },
             },
           },
           plugins: {
-            legend: { display: false }, // 범례는 그래프 위 칩으로 따로 보여 준다
+            legend: { display: false }, // 범례는 그래프 위에 따로 보여 준다
             tooltip: {
               backgroundColor: '#ffffff',
               titleColor: color('--text'),
               bodyColor: color('--text'),
               borderColor: color('--line'),
               borderWidth: 1,
-              padding: 12,
+              padding: 10,
               boxPadding: 4,
               usePointStyle: true,
+              titleFont: { size: 12 },
+              bodyFont: { size: 12 },
               itemSort: (a, b) => b.raw - a.raw, // 관심도 높은 키워드부터
               callbacks: {
                 title: items => points[items[0].dataIndex].title,
@@ -1201,7 +1441,7 @@
     function resetResults() {
       statusList.innerHTML = '';
       renderApiList([]);
-      showEmptyChart(MESSAGES.chartEmpty());
+      showEmptyState(MESSAGES.chartEmpty());
       const period = getPeriod();
       showPeriod(period.start, period.end);
     }
@@ -1254,9 +1494,10 @@
         summaryData.perKeyword.forEach((p, i) => { loaded[i].target.lowViews = p.lowViews; });
         showPeriod(daily.dates[0], daily.dates[daily.dates.length - 1]);
         renderSummary(summaryData);
+        renderTable(summaryData.perKeyword, summaryData.end);
         renderChart(buildChartData(daily, isMonthly()));
       } else {
-        showEmptyChart(MESSAGES.allFailed());
+        showEmptyState(MESSAGES.allFailed());
       }
       renderChips(); // 조회가 너무 적은 키워드 옆에 안내 표시
 
