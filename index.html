@@ -15,6 +15,9 @@
   <!-- 그래프 그리기 도구 (API 아님) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
+  <!-- 한글 글꼴 Pretendard (API 아님) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
   <style>
     :root {
       --bg: #f6f8fb;
@@ -33,7 +36,9 @@
       --series-4: #db2777;    /* 분홍 */
       --series-5: #a16207;    /* 황토 */
       --chart-grid: #eef1f5;
-      --error-text: #b3261e;  /* 오류 배경 대비 5.8:1 */
+      --up: #137333;          /* 오름 (초록), 흰 배경 대비 6.0:1 */
+      --warn-text: #8a4b00;   /* 흰 배경 대비 6.8:1 */
+      --error-text: #b3261e;  /* 오류 배경 대비 5.8:1, 내림(빨강)에도 씀 */
       --error-bg: #fcefee;
       --box-bg: #eef1f5;      /* --muted 대비 5.3:1 */
       --shadow: 0 1px 2px rgba(32, 33, 36, 0.04), 0 2px 8px rgba(32, 33, 36, 0.04);
@@ -49,9 +54,10 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-family: "Pretendard Variable", Pretendard, system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
       font-size: 16px;
       line-height: 1.6;
+      word-break: keep-all; /* 한글을 단어 중간("평/균")에서 끊지 않게 */
     }
 
     main {
@@ -188,6 +194,21 @@
 
     .chips:not(:empty) { margin-top: 16px; }
 
+    .chip-item {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 8px;
+      max-width: 100%;
+    }
+
+    /* 조회가 너무 적은 키워드 옆 안내 */
+    .chip-warn {
+      color: var(--warn-text);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
     .chip {
       display: inline-flex;
       align-items: center;
@@ -257,23 +278,161 @@
     }
 
     /* ---------- 그래프 카드 ---------- */
+    /* 제목·기준 기간은 왼쪽, 기간 버튼은 항상 오른쪽 위 (문구가 길어지면 문구만 줄바꿈) */
     .chart-head {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        "title tabs"
+        "sub   tabs";
+      align-items: start;
+      gap: 2px 24px;
       margin-bottom: 24px;
     }
 
     .chart-head h2 {
+      grid-area: title;
       margin: 0;
       font-size: 20px;
       line-height: 1.4;
     }
 
     .chart-sub {
-      margin: 2px 0 0;
+      grid-area: sub;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .chart-head .period-tabs { grid-area: tabs; }
+
+    /* 기간 선택 (30일 / 90일 / 1년 / 3년) */
+    .period-tabs {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: var(--box-bg);
+    }
+
+    .period-tabs button {
+      min-width: 56px;
+      height: 40px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+
+    .period-tabs button:hover { color: var(--text); }
+
+    .period-tabs button[aria-pressed="true"] {
+      background: var(--card);
+      color: var(--primary);
+      box-shadow: 0 1px 2px rgba(32, 33, 36, 0.12);
+    }
+
+    .period-tabs button:disabled { cursor: wait; }
+
+    .period-tabs button:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    /* 요약 숫자 카드 3장 (그래프 위) */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin: 0 0 24px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 16px 20px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+    }
+
+    .stat-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .stat-main {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 10px;
+      margin: 6px 0 12px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 변화율 큰 숫자: ▲ 초록 / ▼ 빨강 */
+    .stat-value.up { color: var(--up); }
+    .stat-value.down { color: var(--error-text); }
+
+    /* 큰 숫자 아래 작은 보조 숫자 (최근 7일 조회수) */
+    .stat-sub {
+      margin: -6px 0 12px;
+      color: var(--muted);
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 계산 기준 (본문 15px 규칙은 지키고, 구분선으로 한 단계 낮춰 보이게) */
+    .stat-basis {
+      margin: 10px 0 0;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line);
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .stat-keyword {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .stat-keyword .name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .rank {
+      flex: 0 0 auto;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .stat-note {
+      margin: 4px 0 0;
       color: var(--muted);
       font-size: 15px;
     }
@@ -282,7 +441,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 0;
+      margin: 0 0 16px;
       padding: 0;
       list-style: none;
     }
@@ -387,6 +546,21 @@
     .api-box a { color: var(--primary); }
     .api-box .fail { color: var(--error-text); }
 
+    @media (max-width: 640px) {
+      .summary { grid-template-columns: 1fr; gap: 12px; }
+      /* 폰: 제목 → 기간 버튼 한 줄 → 기준 기간 문구 */
+      .chart-head {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+          "title"
+          "tabs"
+          "sub";
+        row-gap: 10px;
+      }
+      .period-tabs { display: flex; width: 100%; }
+      .period-tabs button { flex: 1 1 0; min-width: 0; height: 44px; padding: 0 8px; }
+    }
+
     @media (max-width: 480px) {
       main { padding: 32px 16px 48px; }
       header { margin-bottom: 24px; }
@@ -411,7 +585,7 @@
   <main>
     <header>
       <h1>키워드 관심도 비교</h1>
-      <p class="intro">키워드를 최대 5개까지 넣고, 사람들의 관심도가 최근 90일 동안 어떻게 달라졌는지 한 그래프로 비교해 보세요.</p>
+      <p class="intro">키워드를 최대 5개까지 넣고, 사람들의 관심도가 30일부터 3년까지 어떻게 달라졌는지 한 그래프로 비교해 보세요.</p>
     </header>
 
     <section class="card" aria-label="키워드 입력">
@@ -434,15 +608,42 @@
 
     <section class="card" aria-labelledby="chart-title">
       <div class="chart-head">
-        <div>
-          <h2 id="chart-title">시간 흐름에 따른 관심도</h2>
-          <p class="chart-sub">모든 키워드 중 최댓값 = 100 · <span id="period-text"></span></p>
+        <h2 id="chart-title">시간 흐름에 따른 관심도</h2>
+        <p class="chart-sub">모든 키워드 중 최댓값 = 100 · <span id="period-text"></span></p>
+        <div id="period-tabs" class="period-tabs" role="group" aria-label="기간 선택">
+          <button type="button" data-days="30" aria-pressed="false">30일</button>
+          <button type="button" data-days="90" aria-pressed="true">90일</button>
+          <button type="button" data-days="365" aria-pressed="false">1년</button>
+          <button type="button" data-days="1095" aria-pressed="false">3년</button>
         </div>
-        <ul id="legend" class="legend" hidden></ul>
       </div>
+      <ul id="summary" class="summary" aria-label="요약" hidden>
+        <li class="stat" data-stat="change">
+          <p class="stat-label">최근 7일 변화율</p>
+          <p class="stat-main"><span class="stat-value"></span></p>
+          <p class="stat-sub" hidden></p>
+          <p class="stat-keyword"></p>
+          <p class="stat-note"></p>
+          <p class="stat-basis">기간과 상관없이 최근 7일 기준</p>
+        </li>
+        <li class="stat" data-stat="peak">
+          <p class="stat-label">최고치 날짜</p>
+          <p class="stat-main"><span class="stat-value"></span></p>
+          <p class="stat-keyword"></p>
+          <p class="stat-note"></p>
+          <p class="stat-basis">하루 조회수 기준</p>
+        </li>
+        <li class="stat" data-stat="avg">
+          <p class="stat-label">일평균 조회수</p>
+          <p class="stat-main"><span class="stat-value"></span></p>
+          <p class="stat-keyword"></p>
+          <p class="stat-note"></p>
+        </li>
+      </ul>
+      <ul id="legend" class="legend" hidden></ul>
       <div class="chart-area">
         <canvas id="chart" role="img" aria-label="키워드 관심도 선 그래프" hidden></canvas>
-        <p id="chart-empty" class="chart-empty">키워드를 넣고 [비교하기]를 누르면 최근 90일 그래프가 여기에 그려져요.</p>
+        <p id="chart-empty" class="chart-empty">키워드를 넣고 [비교하기]를 누르면 고른 기간의 그래프가 여기에 그려져요.</p>
       </div>
       <ul class="notes">
         <li><strong>위키 조회수 = 정보 탐색 관심도이며 검색량이 아님</strong></li>
@@ -458,8 +659,13 @@
   </main>
 
   <script>
-    const DAYS = 90;
+    const MONTHLY_FROM_DAYS = 365; // 1년 이상은 월 단위로 보여 준다
     const MAX_KEYWORDS = 5; // 네이버 데이터랩도 5개까지 (CLAUDE.md 5번 규칙)
+    const LOW_VIEWS_PER_DAY = 10; // 하루 평균 이보다 적으면 문서 제목이 잘못됐을 가능성이 큼
+
+    let periodDays = 90; // 기간 선택: 30 / 90 / 365 / 1095
+    let runId = 0; // 가장 마지막에 시작한 비교만 화면에 그린다
+    const cache = new Map(); // API 주소 → 성공한 응답 (칩을 뺄 때 같은 주소를 다시 부르지 않게)
 
     const form = document.getElementById('keyword-form');
     const input = document.getElementById('keyword-input');
@@ -469,6 +675,8 @@
     const chipList = document.getElementById('chip-list');
     const statusList = document.getElementById('status-list');
     const periodText = document.getElementById('period-text');
+    const periodButtons = document.querySelectorAll('#period-tabs button');
+    const summary = document.getElementById('summary');
     const legend = document.getElementById('legend');
     const chartEmpty = document.getElementById('chart-empty');
     const canvas = document.getElementById('chart');
@@ -479,7 +687,7 @@
     const color = name => css.getPropertyValue(name).trim();
     const SERIES_COLORS = ['--series-1', '--series-2', '--series-3', '--series-4', '--series-5'].map(color);
 
-    let keywords = []; // { text, color }
+    let keywords = []; // { text, color, lowViews }
     let chart = null;
 
     // ---------- 날짜 (위키 조회수는 UTC 기준 하루 단위로 집계됨) ----------
@@ -493,16 +701,19 @@
     function toIsoDate(d) { return d.toISOString().slice(0, 10); }                      // 2026-09-01
     function toLabel(d) { return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`; }           // 9/1
 
-    // 최근 90일: 오늘은 아직 집계 전이라 어제까지
+    function isMonthly() { return periodDays >= MONTHLY_FROM_DAYS; }
+
+    // 고른 기간: 오늘은 아직 집계 전이라 어제까지
     function getPeriod() {
       const today = new Date();
       today.setUTCHours(0, 0, 0, 0);
       const end = addDays(today, -1);
-      return { start: addDays(end, -(DAYS - 1)), end };
+      return { start: addDays(end, -(periodDays - 1)), end };
     }
 
     function showPeriod(start, end) {
-      periodText.textContent = `기준 기간: ${toIsoDate(start)} ~ ${toIsoDate(end)} (UTC, 하루 단위)`;
+      const unit = isMonthly() ? '월 단위, 달마다 하루 평균' : '하루 단위';
+      periodText.textContent = `기준 기간: ${toIsoDate(start)} ~ ${toIsoDate(end)} (UTC, ${unit})`;
     }
 
     // ---------- API ----------
@@ -520,20 +731,24 @@
     // 키워드 하나를 따로 부른다 (하나가 실패해도 그것만 실패)
     async function loadKeyword(keyword, period) {
       const url = buildUrl(keyword, period);
+      if (cache.has(url)) return cache.get(url); // 실패한 건 저장하지 않아서 다음에 다시 시도한다
       try {
         const res = await fetch(url); // 🔌 API 호출
         if (res.status === 404) return { keyword, url, ok: false, reason: 'notFound' };
         if (!res.ok) return { keyword, url, ok: false, reason: 'server' };
         const json = await res.json();
         if (!json.items || json.items.length === 0) return { keyword, url, ok: false, reason: 'empty' };
-        return { keyword, url, ok: true, items: json.items };
+        const result = { keyword, url, ok: true, items: json.items };
+        cache.set(url, result);
+        return result;
       } catch (e) {
         return { keyword, url, ok: false, reason: 'network' };
       }
     }
 
-    // ---------- 조회수 → 지수(모든 키워드 중 최댓값 = 100) ----------
-    function buildChartData(results, period) {
+    // ---------- 조회수 정리 ----------
+    // 모든 키워드를 같은 날짜 축(하루 단위)에 맞춘다
+    function alignDaily(results, period) {
       // 아직 집계 안 된 마지막 날들은 잘라 낸다 (키워드 중 가장 이른 마지막 날 기준으로 맞춤)
       const lastDate = results.map(r => r.items[r.items.length - 1].timestamp.slice(0, 8)).sort()[0];
       const dates = [];
@@ -541,19 +756,106 @@
         dates.push(d);
       }
 
-      // 조회가 0인 날은 응답에 빠져 있어서 0으로 채운다
+      // 조회가 0인 날은 응답에 빠져 있을 수 있어서 0으로 채운다
       const series = results.map(r => {
         const viewsByDate = {};
         r.items.forEach(item => { viewsByDate[item.timestamp.slice(0, 8)] = item.views; });
         return { keyword: r.keyword, color: r.color, views: dates.map(d => viewsByDate[toApiDate(d)] || 0) };
       });
-
-      // 키워드끼리 비교되게 전체 최댓값 하나를 기준으로 100을 맞춘다
-      const max = Math.max(...series.flatMap(s => s.views));
-      series.forEach(s => {
-        s.index = s.views.map(v => (max ? Math.round(v / max * 100) : 0));
-      });
       return { dates, series };
+    }
+
+    // 그래프용 점: 1년 미만은 하루마다, 1년 이상은 달마다(그 달의 하루 평균) 하나
+    // 지수는 키워드끼리 비교되게 전체 최댓값 하나를 기준으로 100을 맞춘다
+    function buildChartData(daily, monthly) {
+      let points;
+      let values;
+      if (monthly) {
+        // 처음·마지막 달은 며칠만 들어 있을 수 있어서 합계가 아니라 하루 평균으로 묶는다
+        const months = [];
+        daily.dates.forEach((d, i) => {
+          const key = toIsoDate(d).slice(0, 7); // 2025-11
+          if (!months.length || months[months.length - 1].key !== key) months.push({ key, date: d, days: [] });
+          months[months.length - 1].days.push(i);
+        });
+        points = months.map(m => {
+          const [y, mo] = m.key.split('-');
+          const month = Number(mo);
+          // 눈금 글자는 길이가 같게 YY.MM: "24.01", "24.04"
+          return { date: m.date, label: `${y.slice(2)}.${mo}`, title: `${y}년 ${month}월` };
+        });
+        values = daily.series.map(s =>
+          months.map(m => Math.round(m.days.reduce((sum, i) => sum + s.views[i], 0) / m.days.length)));
+      } else {
+        points = daily.dates.map(d => ({ date: d, label: toLabel(d), title: toIsoDate(d) }));
+        values = daily.series.map(s => s.views);
+      }
+
+      const max = Math.max(...values.flat());
+      const series = daily.series.map((s, k) => ({
+        keyword: s.keyword,
+        color: s.color,
+        values: values[k],
+        index: values[k].map(v => (max ? Math.round(v / max * 100) : 0)),
+      }));
+      return { points, series, monthly, ticks: pickTicks(points) };
+    }
+
+    // 날짜 눈금: 30일 = 7일마다, 90일 = 매월 1일, 1년 = 매월, 3년 = 3개월마다(1·4·7·10월)
+    // 마지막 날짜(기준 기간 끝)는 항상 보이고, 그 바로 앞에 붙은 눈금은 글자가 겹쳐서 뺀다
+    function pickTicks(points) {
+      const last = points.length - 1;
+      const ticks = new Set([last]);
+
+      if (periodDays <= 30) {
+        for (let i = last - 7; i >= 0; i -= 7) ticks.add(i); // 끝에서부터 7일 간격
+        return ticks;
+      }
+
+      const isTick = periodDays <= 90 ? p => p.date.getUTCDate() === 1
+        : periodDays <= 365 ? () => true
+        : p => p.date.getUTCMonth() % 3 === 0; // 1·4·7·10월
+      const tooClose = periodDays <= 90 ? 10 : periodDays <= 365 ? 1 : 3; // 마지막 눈금과 이만큼 미만으로 붙으면 뺀다
+
+      points.forEach((p, i) => {
+        if (isTick(p) && last - i >= tooClose) ticks.add(i);
+      });
+      return ticks;
+    }
+
+    // 요약 카드 3장: 하루 단위 조회수로 계산하고, 항목마다 1등 키워드를 고른다
+    function buildSummary(daily) {
+      const n = daily.dates.length;
+      const sum = (arr, from, to) => arr.slice(Math.max(from, 0), to).reduce((a, b) => a + b, 0);
+
+      const perKeyword = daily.series.map(s => {
+        const last7 = sum(s.views, n - 7, n);
+        const prev7 = sum(s.views, n - 14, n - 7);
+        const peak = Math.max(...s.views);
+        const avg = sum(s.views, 0, n) / n;
+        const lowViews = avg < LOW_VIEWS_PER_DAY;
+        return {
+          keyword: s.keyword,
+          color: s.color,
+          last7,
+          // 계산 불가(null): 직전 7일이 0이면 0으로 나누게 되고,
+          // 조회가 너무 적으면(2회→2회 = 0.0%처럼) 숫자가 의미 없어서 1등 후보에서 뺀다
+          change: n >= 14 && prev7 > 0 && !lowViews ? (last7 - prev7) / prev7 * 100 : null,
+          peak,
+          peakDate: daily.dates[s.views.indexOf(peak)],
+          avg,
+          lowViews,
+        };
+      });
+
+      const top = key => perKeyword.filter(p => p[key] !== null).sort((a, b) => b[key] - a[key])[0] || null;
+      return {
+        perKeyword,
+        change: top('change'),
+        peak: top('peak'),
+        avg: top('avg'),
+        recent: n >= 7 ? [daily.dates[n - 7], daily.dates[n - 1]] : null,
+      };
     }
 
     // ---------- 화면 ----------
@@ -568,6 +870,8 @@
       noKeyword: () => '키워드를 넣어 주세요.',
       allFailed: () => '불러온 키워드가 없어 그래프를 그리지 못했어요. 위의 안내를 확인해 주세요.',
       noChartLib: () => '그래프 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.',
+      lowViews: () => `하루 평균 ${LOW_VIEWS_PER_DAY}회 미만 · 문서 제목을 확인해 보세요`,
+      chartEmpty: () => '키워드를 넣고 [비교하기]를 누르면 고른 기간의 그래프가 여기에 그려져요.',
     };
 
     function showInputMsg(text) {
@@ -584,9 +888,11 @@
     }
 
     // 입력창 글자를 칩으로 옮긴다. 쉼표로 여러 개를 한 번에 넣어도 된다
+    // 새로 넣은 게 있으면 화면 전체를 바로 다시 그리고 true를 돌려준다
     function addFromInput() {
       const parts = input.value.split(',').map(p => p.trim()).filter(Boolean);
       let message = '';
+      let added = 0;
       while (parts.length) {
         if (isFull()) { message = MESSAGES.limit(); break; }
         const text = parts.shift();
@@ -595,11 +901,14 @@
           message = MESSAGES.duplicate(text);
           continue;
         }
-        keywords.push({ text, color: nextColor() });
+        keywords.push({ text, color: nextColor(), lowViews: false });
+        added += 1;
       }
       input.value = parts.join(', '); // 막혀서 못 넣은 키워드는 입력창에 남겨 둔다
       showInputMsg(message);
       renderChips();
+      if (added) runCompare();
+      return added > 0;
     }
 
     function removeKeyword(keyword) {
@@ -607,13 +916,17 @@
       showInputMsg('');
       renderChips();
       input.focus();
+      runCompare(); // 키워드를 빼면 바로 다시 그린다 (0개가 되면 처음 화면으로)
     }
 
     function renderChips() {
       chipList.innerHTML = '';
       keywords.forEach(k => {
         const li = document.createElement('li');
-        li.className = 'chip';
+        li.className = 'chip-item';
+
+        const chip = document.createElement('span');
+        chip.className = 'chip';
 
         const dot = document.createElement('span');
         dot.className = 'legend-dot';
@@ -631,14 +944,23 @@
         remove.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>';
         remove.addEventListener('click', () => removeKeyword(k));
 
-        li.append(dot, text, remove);
+        chip.append(dot, text, remove);
+        li.appendChild(chip);
+
+        if (k.lowViews) {
+          const warn = document.createElement('span');
+          warn.className = 'chip-warn';
+          warn.textContent = MESSAGES.lowViews();
+          li.appendChild(warn);
+        }
+
         chipList.appendChild(li);
       });
 
       keywordCount.textContent = `${keywords.length} / ${MAX_KEYWORDS}`;
       // 5개가 차면 6번째 입력을 막는다
       input.readOnly = isFull();
-      input.placeholder = isFull() ? `최대 ${MAX_KEYWORDS}개까지 넣었어요` : (keywords.length ? '키워드 더 넣기' : '예: Kimchi');
+      input.placeholder = isFull() ? `${MAX_KEYWORDS}개 다 넣었어요` : (keywords.length ? '키워드 더 넣기' : '예: Kimchi');
     }
 
     input.addEventListener('keydown', event => {
@@ -673,30 +995,93 @@
       legend.hidden = false;
     }
 
+    // ---------- 요약 카드 ----------
+    const formatCount = n => Math.round(n).toLocaleString('ko-KR');
+
+    function renderStat(name, { value, tone, sub, top, note }) {
+      const card = summary.querySelector(`[data-stat="${name}"]`);
+
+      const valueEl = card.querySelector('.stat-value');
+      valueEl.textContent = value;
+      valueEl.className = tone ? `stat-value ${tone}` : 'stat-value';
+
+      const subEl = card.querySelector('.stat-sub');
+      if (subEl) {
+        subEl.textContent = sub || '';
+        subEl.hidden = !sub;
+      }
+
+      const keywordEl = card.querySelector('.stat-keyword');
+      keywordEl.innerHTML = '';
+      if (top) {
+        const rank = document.createElement('span');
+        rank.className = 'rank';
+        rank.textContent = '1등';
+        const dot = document.createElement('span');
+        dot.className = 'legend-dot';
+        dot.style.background = top.color;
+        dot.setAttribute('aria-hidden', 'true');
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = top.keyword;
+        keywordEl.append(rank, dot, name);
+      }
+
+      card.querySelector('.stat-note').textContent = note;
+    }
+
+    function renderSummary({ change, peak, avg, recent }) {
+      const recentText = recent ? `${toLabel(recent[0])}~${toLabel(recent[1])}` : '';
+      renderStat('change', change
+        ? {
+          // 큰 숫자 = 변화율 (▲ 초록 / ▼ 빨강 / – 그대로), 그 아래 작은 글씨 = 최근 7일 조회수
+          value: `${change.change > 0 ? '▲' : change.change < 0 ? '▼' : '–'} ${Math.abs(change.change).toFixed(1)}%`,
+          tone: change.change > 0 ? 'up' : change.change < 0 ? 'down' : '',
+          sub: `최근 7일 조회 ${formatCount(change.last7)}회`,
+          top: change,
+          note: `${recentText} · 직전 7일 대비`,
+        }
+        : { value: '계산 불가', top: null, note: '직전 7일 조회가 0이거나 하루 평균 10회 미만인 키워드는 빼고 비교해요' });
+      renderStat('peak', {
+        value: toIsoDate(peak.peakDate),
+        top: peak,
+        note: `가장 관심 높은 날 · 하루 조회 ${formatCount(peak.peak)}회`,
+      });
+      renderStat('avg', {
+        value: `${formatCount(avg.avg)}회`,
+        top: avg,
+        note: '가장 관심 높은 키워드 · 기간 내 하루 평균',
+      });
+      summary.hidden = false;
+    }
+
     function showEmptyChart(text) {
       if (chart) chart.destroy();
       chart = null;
       canvas.hidden = true;
       legend.hidden = true;
+      summary.hidden = true;
       chartEmpty.textContent = text;
       chartEmpty.hidden = false;
     }
 
-    function renderChart({ dates, series }) {
+    function renderChart({ points, series, monthly, ticks }) {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const single = series.length === 1;
+      const periodLabel = document.querySelector('#period-tabs [aria-pressed="true"]').textContent;
 
       // 안내 문구를 먼저 숨기고 캔버스를 보여 준 다음 그린다 (칸 크기에 맞춰 그려지게)
       chartEmpty.hidden = true;
       canvas.hidden = false;
-      canvas.setAttribute('aria-label', `${series.map(s => s.keyword).join(', ')} 최근 90일 관심도 선 그래프, 세로축 0~100`);
+      canvas.setAttribute('aria-label', `${series.map(s => s.keyword).join(', ')} 최근 ${periodLabel} 관심도 선 그래프(${monthly ? '월 단위' : '하루 단위'}), 세로축 0~100`);
       renderLegend(series);
 
       if (chart) chart.destroy();
+      Chart.defaults.font.family = getComputedStyle(document.body).fontFamily; // 그래프 글자도 Pretendard
       chart = new Chart(canvas, {
         type: 'line',
         data: {
-          labels: dates.map(toLabel),
+          labels: points.map(p => p.label),
           datasets: series.map(s => ({
             label: s.keyword,
             data: s.index,
@@ -728,7 +1113,14 @@
             },
             x: {
               border: { color: color('--line') },
-              ticks: { maxTicksLimit: 7, maxRotation: 0, padding: 8, color: color('--muted'), font: { size: 13 } },
+              ticks: {
+                autoSkip: false, // 눈금은 pickTicks가 고른 날짜에만 (간격을 기간별로 일정하게)
+                callback: (value, i) => (ticks.has(i) ? points[i].label : null),
+                maxRotation: 45, // 폰처럼 좁으면 글자를 기울여서 겹치지 않게
+                padding: 8,
+                color: color('--muted'),
+                font: { size: 13 },
+              },
               grid: { display: false },
             },
           },
@@ -745,11 +1137,12 @@
               usePointStyle: true,
               itemSort: (a, b) => b.raw - a.raw, // 관심도 높은 키워드부터
               callbacks: {
-                title: items => toIsoDate(dates[items[0].dataIndex]),
+                title: items => points[items[0].dataIndex].title,
                 label: item => {
                   const s = series[item.datasetIndex];
                   const i = item.dataIndex;
-                  return ` ${s.keyword}: 지수 ${s.index[i]} (조회 ${s.views[i].toLocaleString('ko-KR')}회)`;
+                  const views = formatCount(s.values[i]);
+                  return ` ${s.keyword}: 지수 ${s.index[i]} (${monthly ? `하루 평균 ${views}회` : `조회 ${views}회`})`;
                 },
                 labelColor: item => {
                   const c = series[item.datasetIndex].color;
@@ -760,6 +1153,8 @@
           },
         },
       });
+      // Pretendard가 늦게 받아지면 눈금 글자 폭을 다시 재서 그린다
+      document.fonts.ready.then(() => { if (chart) chart.update('none'); });
     }
 
     // ---------- 🔌 API 상자 ----------
@@ -796,12 +1191,27 @@
     }
 
     // ---------- 비교하기 ----------
-    form.addEventListener('submit', async event => {
-      event.preventDefault();
-      if (input.value.trim()) addFromInput(); // 입력창에 남은 글자도 칩으로 넣고 비교
+    function setLoading(loading) {
+      button.disabled = loading;
+      button.textContent = loading ? '불러오는 중…' : '비교하기';
+      periodButtons.forEach(b => { b.disabled = loading; });
+    }
+
+    // 키워드가 하나도 없으면 처음 화면으로
+    function resetResults() {
+      statusList.innerHTML = '';
+      renderApiList([]);
+      showEmptyChart(MESSAGES.chartEmpty());
+      const period = getPeriod();
+      showPeriod(period.start, period.end);
+    }
+
+    // 칩 추가·삭제, 기간 변경, [비교하기] 모두 여기로 와서 화면 전체를 다시 그린다
+    async function runCompare() {
+      const myRun = ++runId;
       if (keywords.length === 0) {
-        showInputMsg(MESSAGES.noKeyword());
-        input.focus();
+        resetResults();
+        setLoading(false);
         return;
       }
       if (typeof Chart === 'undefined') {
@@ -811,8 +1221,7 @@
 
       const period = getPeriod();
       const targets = [...keywords];
-      button.disabled = true;
-      button.textContent = '불러오는 중…';
+      setLoading(true);
       statusList.innerHTML = '';
 
       // 키워드마다 따로 부르고, 끝나는 대로 각자 안내를 바꾼다 (하나가 실패해도 나머지는 그래프에)
@@ -829,22 +1238,52 @@
           li.className = 'error';
           li.textContent = MESSAGES[result.reason](k.text);
         }
-        return { ...result, color: k.color };
+        return { ...result, color: k.color, target: k };
       }));
+
+      // 그사이 키워드나 기간이 또 바뀌었으면 이 결과는 버린다 (새 비교가 그린다)
+      if (myRun !== runId) return;
 
       renderApiList(results);
 
+      targets.forEach(k => { k.lowViews = false; });
       const loaded = results.filter(r => r.ok);
       if (loaded.length) {
-        const data = buildChartData(loaded, period);
-        showPeriod(data.dates[0], data.dates[data.dates.length - 1]);
-        renderChart(data);
+        const daily = alignDaily(loaded, period);
+        const summaryData = buildSummary(daily);
+        summaryData.perKeyword.forEach((p, i) => { loaded[i].target.lowViews = p.lowViews; });
+        showPeriod(daily.dates[0], daily.dates[daily.dates.length - 1]);
+        renderSummary(summaryData);
+        renderChart(buildChartData(daily, isMonthly()));
       } else {
         showEmptyChart(MESSAGES.allFailed());
       }
+      renderChips(); // 조회가 너무 적은 키워드 옆에 안내 표시
 
-      button.disabled = false;
-      button.textContent = '비교하기';
+      setLoading(false);
+    }
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      // 입력창에 남은 글자가 있으면 칩으로 넣는다 (넣으면 그 자리에서 바로 다시 그림)
+      if (input.value.trim() && addFromInput()) return;
+      if (keywords.length === 0) {
+        showInputMsg(MESSAGES.noKeyword());
+        input.focus();
+        return;
+      }
+      runCompare();
+    });
+
+    // 기간을 바꾸면 기준 기간 문구가 바로 바뀌고, 키워드가 있으면 그 기간으로 다시 불러온다
+    periodButtons.forEach(b => {
+      b.addEventListener('click', () => {
+        periodDays = Number(b.dataset.days);
+        periodButtons.forEach(other => other.setAttribute('aria-pressed', String(other === b)));
+        const period = getPeriod();
+        showPeriod(period.start, period.end);
+        if (keywords.length) runCompare();
+      });
     });
 
     // 처음 열었을 때도 어느 기간을 보는지 알 수 있게
